@@ -6,7 +6,6 @@
 <svg class="desktop-burger" style="vertical-align:middle;" width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M18.75 53.125V46.875H81.25V53.125H18.75ZM18.75 71.875V65.625H81.25V71.875H18.75ZM18.75 34.375V28.125H81.25V34.375H18.75Z" fill="black"/>
 </svg>
-
     `;
   template.innerHTML = `
     <style>
@@ -40,7 +39,6 @@
 			opacity: 0;
         }
 
-
     .burgerOverlay {
         position: fixed;
         top: 0;
@@ -72,22 +70,16 @@
       fill: var(--close-burger);
     }
 
-
     </style>
 
-
-
     <slot></slot>
-    <div part="burgerToggle" class="burgerToggle"><svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M25.6939 30.1128L30.1133 25.6934L74.3075 69.8875L69.888 74.3069L25.6939 30.1128Z" fill="black"/>
-    <path d="M30.1108 74.3071L25.6914 69.8877L69.8856 25.6935L74.305 30.1129L30.1108 74.3071Z" fill="black"/>
-    </svg>
+    <div part="burgerToggle" class="burgerToggle">
+      <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M25.6939 30.1128L30.1133 25.6934L74.3075 69.8875L69.888 74.3069L25.6939 30.1128Z" fill="black"/>
+        <path d="M30.1108 74.3071L25.6914 69.8877L69.8856 25.6935L74.305 30.1129L30.1108 74.3071Z" fill="black"/>
+      </svg>
     </div>
-
-
-
-
-    `;
+  `;
 
   class BetterBurger extends HTMLElement {
     constructor() {
@@ -112,12 +104,16 @@
         }
         setTimeout(function () {
           self.preventBodyScrollWhenVisible();
+          // Apply styles when the menu is open
+          self.applyMenuStyles(self.classList.contains('is-open'));
         }, 1000);
       });
 
       this.burgerToggle.addEventListener('click', function () {
         self.classList.toggle('is-open');
         self.resetBodyPositionWhenNotVisible();
+        // Reset styles when the menu is closed
+        self.applyMenuStyles(self.classList.contains('is-open'));
       });
     }
 
@@ -128,13 +124,11 @@
     }
 
     preventBodyScrollWhenVisible() {
-      // When the overlay is shown, we want a fixed body
       document.body.style.position = 'fixed';
       document.body.style.top = `-${window.scrollY}px`;
     }
 
     resetBodyPositionWhenNotVisible() {
-      // When the modal is hidden...
       const scrollY = document.body.style.top;
       document.body.style.position = '';
       document.body.style.top = '';
@@ -161,15 +155,50 @@
       });
     }
 
+    applyMenuStyles(isOpen) {
+      const headerMenu = document.querySelector('.header-menu');
+      const header = document.querySelector('.header');
+      const headerMenuBg = document.querySelector('.header-menu-bg');
+      const page = document.querySelector('#page');
+
+      if (isOpen) {
+        headerMenu.style.bottom = '10vh';
+        headerMenu.style.left = '5vw';
+        headerMenu.style.right = '5vw';
+        headerMenu.style.top = '5vh';
+
+        header.style.top = '5vh';
+        header.style.left = '5vw';
+
+        headerMenuBg.style.borderRadius = '15px';
+        headerMenuBg.style.boxShadow = '5px 5px 15px 5px rgba(0, 0, 0, 0.5)';
+
+        page.style.opacity = '0.3';
+      } else {
+        headerMenu.style.bottom = '';
+        headerMenu.style.left = '';
+        headerMenu.style.right = '';
+        headerMenu.style.top = '';
+
+        header.style.top = '';
+        header.style.left = '';
+
+        headerMenuBg.style.borderRadius = '';
+        headerMenuBg.style.boxShadow = '';
+
+        page.style.opacity = '';
+      }
+    }
+
     connectedCallback() {
       this.getBurgerLinks();
-      // console.log(overlay)
-      this.getBurgerLinks().forEach(link => {
+      this.getBurgerLinks().forEach((link) => {
         link.classList.add('header-nav-item');
         link.style.fontSize = '4vmin';
         this.appendChild(link);
       });
     }
   }
+
   window.customElements.define('better-burger', BetterBurger);
 })();
